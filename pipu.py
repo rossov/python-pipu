@@ -13,7 +13,7 @@ import sys
 import time
 
 # skip following packages
-exclude_list = {"prompt-toolkit", "botocore", "rsa"}
+exclude_list = {}
 include_list = {"Installing", "Successfully"}
 
 
@@ -86,9 +86,20 @@ def setup():
     logging.basicConfig(filename=os.path.join(logging_dir, logging_log), level=logging.DEBUG)
 
 
+def update_from_env(l, ev):
+    if ev in os.environ:
+        e = set(os.environ[ev].split(","))
+        return l.union(e) if l else e
+    else:
+        return l
+
+
 def main():
+    global exclude_list
+
     print("PIPU - PIP Updater, the latest version.")
     setup()
+    exclude_list = update_from_env(exclude_list, "PIPU_EXCLUDE")
     packages = list_outdated_packages(exclude_list)
     
     if not packages:
